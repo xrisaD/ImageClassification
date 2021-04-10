@@ -17,6 +17,19 @@ def extreme_softmax(x):
 
     return x
 
+
+def h_1(a):
+    return np.log(1 + np.exp(a))
+
+
+def h_2(a):
+    return (np.exp(a) - np.exp(-a)) / (np.exp(a) + np.exp(-a))
+
+
+def h_3(a):
+    return np.cos(a)
+
+
 def softmax(x):
     """ Compute the softmax function for each row of the input x.
     Arguments:
@@ -25,5 +38,3 @@ def softmax(x):
     x: A N dimensional vector
     """
     return np.exp(x) / np.transpose(np.tile(np.sum(np.exp(x), axis=1), (x.shape[1], 1)))
-
-
