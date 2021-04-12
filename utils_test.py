@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import numpy.testing as nt
+from model import Model
 
 import utils
 
@@ -23,5 +24,12 @@ class MyTestCase(unittest.TestCase):
     def test_h3(self):
         res = utils.h_3(0)
         self.assertEqual(res, 1)
+
+    def test_forward(self):
+        M = 4
+
+        x = [[1,2,3,4],[5,6,7,8]]
+        model = Model()
+
 if __name__ == '__main__':
     unittest.main()
