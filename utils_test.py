@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 import numpy.testing as nt
+
+from datasets import Dataset
 from model import Model
 
 import utils
@@ -21,15 +23,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(len(res), len(expected))
         nt.assert_array_almost_equal(res, expected)
 
-    def test_h3(self):
-        res = utils.h_3(0)
-        self.assertEqual(res, 1)
-
-    def test_forward(self):
-        M = 4
-
-        x = [[1,2,3,4],[5,6,7,8]]
-        model = Model()
+    def test_dataset1(self):
+        d = Dataset("mnist/test")
+        p = iter(d)
+        x = next(p)
+        y = next(p)
+        eq = (x == y).all()
+        self.assertFalse(eq)
 
 if __name__ == '__main__':
     unittest.main()
