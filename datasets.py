@@ -15,19 +15,21 @@ def load_MNISTdata(set):
         for line in lines:
             X.append([(int(i)-min)/(max-min) for i in line.split()]) # normalization
             Y.append(i)
-        num_feats = len(X[0])
-
     #create one_hots
     Y = np.array(Y).reshape(-1)
     one_hots = np.eye(10)[Y]
-    return np.array(X), one_hots, num_feats, 10
+    return X, one_hots.tolist()
 
 
 class Dataset:
-    def __init__(self, set, minibatches_size=100):
+    def __init__(self, X, Y, minibatches_size=200):
         self.Xbatches = []
         self.Ybatches = []
-        self.X, self.Y, self.num_feats, self.model_output_size = load_MNISTdata(set)
+        self.num_feats = len(X[0])
+        self.model_output_size = len(Y[0])
+        self.X = np.array(X)
+        self.Y = np.array(Y)
+
         self.minibatches_size = minibatches_size
         self.batches_creation()
 

@@ -7,6 +7,7 @@ def f1(y_true, y_pred, average="micro"):
     y_true = np.argmax(y_true, axis=1).tolist()
     y_pred = np.argmax(y_pred, axis=1).tolist()
     print(y_pred)
+    print(y_true)
     return f1_score(y_true, y_pred, average=average)
 
 

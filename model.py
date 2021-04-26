@@ -2,19 +2,22 @@ import numpy as np
 from utils import softmax
 
 from activations import H1Activation
-
+from w_init import xavier
 
 class Model:
-    def __init__(self, D, K, M=100, activation=H1Activation, check=False, W1=None):
+    def __init__(self, D, K, learning_rate, lambdapar=0, M=100, activation=H1Activation, init=xavier, check=False, W1=None, W2=None):
         # initialize weights
         # W1: M*(D+1)
         # W2: K*(M+1)
+        self.lambdapar = lambdapar
+        self.learning_rate = learning_rate
 
-        self.W1 = np.random.rand(M, D + 1)
-        self.W2 = np.random.rand(K, M + 1)
+        self.W1 = init(M, D + 1)
+        self.W2 = init(K, M + 1)
+
         if check:
             self.W1 = W1
-
+            self.W2 = W2
         self.activation = activation
 
     # returns the predictions
@@ -29,33 +32,36 @@ class Model:
         return self.Y
 
     # returns the loss
-    def loss(self, T, Y, lambdapar):
+    def likelihood(self, T, Y):
         # Y: predictions
         # T: true
         frobenius_norm = np.sum(np.power(np.absolute(self.W1), 2)) + np.sum(np.power(np.absolute(self.W2), 2))
-        return np.sum(T * np.log(Y)) - lambdapar * frobenius_norm
+        return np.sum(T * np.log(Y)) - self.lambdapar * frobenius_norm
 
-    def backward(self, T, learning_rate):
-
-        t_y = np.transpose(T - self.Y)
+    def backward(self, T):
         # update W2
-        w2_grad = self.w2_derivative(t_y)
-        self.W2 = self.W2 + learning_rate * w2_grad
+        w2_grad = self.w2_derivative(T)
+        self.W2 = self.W2 + self.learning_rate * w2_grad
 
         # update W1
-        w1_grad = self.w1_derivative(t_y)
-        self.W1 = self.W1 + learning_rate * w1_grad
+        w1_grad = self.w1_derivative(T)
+        self.W1 = self.W1 + self.learning_rate * w1_grad
 
-    def w1_derivative(self, t_y):
+    def w1_derivative(self, T):
+        t_y = np.transpose(T - self.Y)
         activation_result = self.activation.derivative(self.W1 @ np.transpose(self.X))
         W2_copy = np.copy(self.W2)
         W2_sm = np.delete(W2_copy, 0, 1)
         return ((np.transpose(W2_sm) @ t_y) * activation_result) @ self.X + self.lambdapar * self.W1
 
-    def w2_derivative(self, t_y):
+    def w2_derivative(self, T):
+        t_y = np.transpose(T - self.Y)
         return t_y @ self.Z - self.lambdapar * self.W2
 
+    def set_W1(self, W1):
+        self.W1 = W1
+
     def step(self, X, T):
-        self.lambdapar = 0
         self.forward(X)
-        self.backward(T, 0.0001)
+        self.backward(T)
+        return self.likelihood(T, self.Y)

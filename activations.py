@@ -7,8 +7,8 @@ class H1Activation:
         return np.log(1 + np.exp(a))
 
     @staticmethod
-    def derivative():
-        return 0
+    def derivative(a):
+        return np.exp(a)/(1 + np.exp(a))
 
 
 class H2Activation:
@@ -17,8 +17,8 @@ class H2Activation:
         return (np.exp(a) - np.exp(-a))/(np.exp(a) + np.exp(-a))
 
     @staticmethod
-    def derivative():
-        return 0
+    def derivative(a):
+        return 1 - (H2Activation.function(a)**2)
 
 
 class H3Activation:
