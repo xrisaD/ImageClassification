@@ -1,5 +1,3 @@
-import numpy as np
-
 from tqdm import tqdm
 
 from activations import H3Activation, H1Activation, H2Activation
@@ -35,10 +33,15 @@ def tune(train_dataset, dev_dataset, epochs=40):
                 for M in Ms:
                     for activation in activations:
                         for init in inits:
+                            print()
+                            print("----------------------------------------------------")
+                            print(lr, l, M, str(activation), str(init))
                             model = train(train_dataset, epochs, lr, l, M, activation, init)
                             Y = model.forward(X)
                             acc = accuracy(T, Y)
-                            print(lr, l, M, " Accuracy is: ", acc)
+                            print(" Accuracy is: ", acc)
+                            print("----------------------------------------------------")
+                            print()
                             if best_acc < acc:
                                 best_acc = acc
                                 best_lr = lr
@@ -46,7 +49,23 @@ def tune(train_dataset, dev_dataset, epochs=40):
                                 best_M = M
                                 best_activation = activation
                                 best_init = init
-
+    print()
+    print("----------------------------------------------------")
     print("Best hyperparameters: ", best_acc, best_lr, best_l, best_M, best_activation, best_init)
+    print("----------------------------------------------------")
+    print()
+    return best_lr, best_l, best_M, best_activation, best_init
 
-    return best_lr, best_l, best_M
+def run(train_dataset, dev_dataset, test_dataset):
+    print("Start tuning...")
+    best_lr, best_l, best_M, best_activation, best_init = tune(train_dataset, dev_dataset, 60)
+
+    print("Start training...")
+    model = train(train_dataset, 40, best_lr, best_l, best_M, best_activation, best_init)
+
+    print("Test results: ")
+    X, T = test_dataset.get_all_examples()
+    Y_pred = model.forward(X)
+    loss = model.likelihood(T, Y_pred)
+    print(loss)
+    print(accuracy(T, Y_pred))

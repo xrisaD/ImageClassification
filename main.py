@@ -1,39 +1,63 @@
-
-from datasets import Dataset, load_MNISTdata
+import sys
+from datasets import Dataset, load_MNISTdata, load_CIFARdata
 from sklearn.model_selection import train_test_split
 
-from functions import train, tune
+from functions import run
 from metrics import accuracy
 
 
-def main():
-    print("Load data...")
+def mnist():
+    print("Load mnist data...")
     # load dataset
     X_train, Y_train = load_MNISTdata("mnist/train")
-    X_test, Y_test= load_MNISTdata("mnist/test")
+    X_test, Y_test = load_MNISTdata("mnist/test")
 
-    # split test to test and dev
-    X_dev, X_test, y_dev, y_test = train_test_split(X_test, Y_test, test_size=0.5, random_state=42, shuffle=True)
+    # split train to train and dev
+    X_train, X_dev, Y_train, Y_dev = train_test_split(X_train, Y_train, test_size=0.2, random_state=42, shuffle=True)
 
-    train_dataset = Dataset(X_train, Y_train)
-    dev_dataset = Dataset(X_dev, y_dev)
-    test_dataset = Dataset(X_test, y_test)
+    train_dataset = Dataset()
+    train_dataset.add_data(X_train, Y_train)
+    dev_dataset = Dataset()
+    dev_dataset.add_data(X_dev, Y_dev)
+    test_dataset = Dataset()
+    test_dataset.add_data(X_test, Y_test)
 
-    print("Start tuning...")
-    best_lr, best_l, best_M, best_activation, best_init = tune(train_dataset, dev_dataset, 60)
+    run(train_dataset, dev_dataset, test_dataset)
 
-    print("Start training...")
 
-    model = train(train_dataset, 40, best_lr, best_l, best_M, best_activation, best_init)
+def cifar():
+    print("Load cifar data...")
 
-    print("Test results: ")
-    X, T = test_dataset.get_all_examples()
-    Y_pred = model.forward(X)
-    loss = model.likelihood(T, Y_pred)
-    print(loss)
-    print(accuracy(T, Y_pred))
+    X_train, X_test, Y_train, Y_test = load_CIFARdata()
 
+    # dev batch
+    X_dev = X_train[4]
+    Y_dev = X_train[4]
+
+    X_train = X_train[0:4]
+    Y_train = Y_train[0:4]
+
+    print(X_train.shape)
+    print(X_dev.shape)
+    print(Y_train.shape)
+    print(Y_dev.shape)
+
+    train_dataset = Dataset()
+    train_dataset.add_batches(X_train, Y_train)
+
+    dev_dataset = Dataset()
+    dev_dataset.add_data(X_dev, Y_dev)
+
+    test_dataset = Dataset()
+    test_dataset.add_data(X_test, Y_test)
+
+    run(train_dataset, dev_dataset, test_dataset)
 
 
 if __name__ == "__main__":
-    main()
+    dataset_name = sys.argv[1]
+
+    if dataset_name == 'mnist':
+        mnist()
+    elif dataset_name == 'cifar':
+        cifar()

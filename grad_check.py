@@ -1,4 +1,5 @@
 from activations import H3Activation, H1Activation, H2Activation
+from datasets import Dataset
 from model import Model
 import random
 import numpy as np
@@ -41,7 +42,8 @@ def grad_check():
     Y_test = [[0,1,0],[0,1,0],[0,1,0]]
 
     # get one batch
-    dataset = Dataset(X_test, Y_test, 5)
+    dataset = Dataset(5)
+    dataset.add_data(X_test, Y_test)
     d = iter(dataset)
     X, T = next(d)
     num_feats = dataset.get_num_feats()
