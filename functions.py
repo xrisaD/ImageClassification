@@ -16,7 +16,7 @@ def train(train_dataset, epochs, lr, l, M, activation, init):
     return model
 
 
-def tune(train_dataset, dev_dataset, epochs=40):
+def tune(train_dataset, dev_dataset, epochs):
     # add activations
     activations = [H1Activation, H2Activation, H3Activation]
     inits = [xavier, he, glorot]
@@ -57,11 +57,12 @@ def tune(train_dataset, dev_dataset, epochs=40):
     return best_lr, best_l, best_M, best_activation, best_init
 
 def run(train_dataset, dev_dataset, test_dataset):
+    epochs = 60
     print("Start tuning...")
-    best_lr, best_l, best_M, best_activation, best_init = tune(train_dataset, dev_dataset, 60)
+    best_lr, best_l, best_M, best_activation, best_init = tune(train_dataset, dev_dataset, epochs)
 
     print("Start training...")
-    model = train(train_dataset, 40, best_lr, best_l, best_M, best_activation, best_init)
+    model = train(train_dataset, epochs, best_lr, best_l, best_M, best_activation, best_init)
 
     print("Test results: ")
     X, T = test_dataset.get_all_examples()

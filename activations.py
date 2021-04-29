@@ -11,7 +11,6 @@ class H1Activation:
         return np.exp(a) / (1 + np.exp(a))
 
 
-
 class H2Activation:
     @staticmethod
     def function(a):
@@ -22,8 +21,6 @@ class H2Activation:
         return 1 - (H2Activation.function(a) ** 2)
 
 
-
-
 class H3Activation:
     @staticmethod
     def function(a):
@@ -32,4 +29,3 @@ class H3Activation:
     @staticmethod
     def derivative(a):
         return - np.sin(a)
-

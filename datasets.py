@@ -69,7 +69,7 @@ class Dataset:
         self.Ybatches = []
         self.batch_size = batch_size
 
-    def add_data(self, X, Y, oneBatch=True):
+    def add_data(self, X, Y, create_batches=True):
         if not isinstance(X, np.ndarray):
             self.X = np.array(X)
         else:
@@ -80,7 +80,7 @@ class Dataset:
             self.Y = Y
         self.num_feats = self.X.shape[1]
         self.model_output_size = self.Y.shape[1]
-        if not oneBatch:
+        if create_batches:
             self.batches_creation()
 
     def add_batches(self, Xbatches, Ybatches):

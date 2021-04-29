@@ -46,10 +46,10 @@ def cifar():
     train_dataset.add_batches(X_train, Y_train)
 
     dev_dataset = Dataset()
-    dev_dataset.add_data(X_dev, Y_dev)
+    dev_dataset.add_data(X_dev, Y_dev, create_batches=False)
 
     test_dataset = Dataset()
-    test_dataset.add_data(X_test, Y_test)
+    test_dataset.add_data(X_test, Y_test, create_batches=False)
 
     run(train_dataset, dev_dataset, test_dataset)
 
