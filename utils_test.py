@@ -3,7 +3,6 @@ import numpy as np
 import numpy.testing as nt
 
 from datasets import Dataset
-from model import Model
 
 import utils
 

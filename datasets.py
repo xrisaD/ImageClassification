@@ -2,8 +2,6 @@ import numpy as np
 
 
 def load_MNISTdata(set):
-    min = 0
-    max = 255
     X = []
     Y = []
 
@@ -13,7 +11,7 @@ def load_MNISTdata(set):
             lines = f.readlines()
 
         for line in lines:
-            X.append([(int(i) - min) / (max - min) for i in line.split()])  # normalization
+            X.append([int(i) / 255 for i in line.split()])  # normalization
             Y.append(i)
     return X, create_one_hot(Y)
 
@@ -37,8 +35,6 @@ def create_one_hot_batches(Y):
 
 
 def load_CIFARdata(path="cifar"):
-    min = 0
-    max = 255
 
     # load train
     X_train = []
@@ -47,29 +43,26 @@ def load_CIFARdata(path="cifar"):
         train_data = unpickle(path + "/data_batch_" + str(i))
         X_train.append(train_data[b'data'])
         Y_train.append(train_data[b'labels'])
-    X_train_batches = np.stack(X_train, axis=0)
-    X_train_batches = (X_train_batches - min) / (max - min)  # normalization
+    X_train = np.concatenate(X_train, axis=0)
+    X_train = X_train/255  # normalization
 
-    Y_train_batches = np.stack(Y_train, axis=0)
-    Y_train_batches = create_one_hot_batches(Y_train_batches)
-
+    Y_train = np.concatenate(Y_train, axis=0)
 
     # load test
     test_data = unpickle(path + "/test_batch")
     X_test = test_data[b'data']
     Y_test = test_data[b'labels']
-    X_test = (X_test - min) / (max - min)  # normalization
+    X_test = X_test /255  # normalization
 
-    return X_train_batches, X_test, Y_train_batches, create_one_hot(Y_test)
+    return X_train, X_test, create_one_hot(Y_train), create_one_hot(Y_test)
 
 
 class Dataset:
-    def __init__(self, batch_size=200):
+    def __init__(self, X, Y, batch_size=200):
         self.Xbatches = []
         self.Ybatches = []
         self.batch_size = batch_size
 
-    def add_data(self, X, Y, create_batches=True):
         if not isinstance(X, np.ndarray):
             self.X = np.array(X)
         else:
@@ -80,15 +73,7 @@ class Dataset:
             self.Y = Y
         self.num_feats = self.X.shape[1]
         self.model_output_size = self.Y.shape[1]
-        if create_batches:
-            self.batches_creation()
-
-    def add_batches(self, Xbatches, Ybatches):
-        self.Xbatches = Xbatches
-        self.Ybatches = Ybatches
-        self.num_feats = Xbatches.shape[2]
-        self.model_output_size = Ybatches.shape[2]
-
+        self.batches_creation()
 
     def batches_creation(self):
         # create batches

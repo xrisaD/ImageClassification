@@ -1,3 +1,5 @@
+from itertools import product
+
 from tqdm import tqdm
 
 from activations import H3Activation, H1Activation, H2Activation
@@ -16,7 +18,7 @@ def train(train_dataset, epochs, lr, l, M, activation, init):
     return model
 
 
-def tune(train_dataset, dev_dataset, epochs):
+def tune(train_dataset, dev_dataset, epochs=5):
     # add activations
     activations = [H1Activation, H2Activation, H3Activation]
     inits = [xavier, he, glorot]
@@ -27,34 +29,30 @@ def tune(train_dataset, dev_dataset, epochs):
     best_acc = 0
     X, T = dev_dataset.get_all_examples()
 
-    for lr in lrs:
-        for l in ls:
-            if lr > l:
-                for M in Ms:
-                    for activation in activations:
-                        for init in inits:
-                            print()
-                            print("----------------------------------------------------")
-                            print(lr, l, M, str(activation), str(init))
-                            model = train(train_dataset, epochs, lr, l, M, activation, init)
-                            Y = model.forward(X)
-                            acc = accuracy(T, Y)
-                            print(" Accuracy is: ", acc)
-                            print("----------------------------------------------------")
-                            print()
-                            if best_acc < acc:
-                                best_acc = acc
-                                best_lr = lr
-                                best_l = l
-                                best_M = M
-                                best_activation = activation
-                                best_init = init
+    for (lr, l, M, activation, init) in product(lrs, ls, Ms, activations, inits):
+        print()
+        print("----------------------------------------------------")
+        print(lr, l, M, str(activation), str(init))
+        model = train(train_dataset, epochs, lr, l, M, activation, init)
+        Y = model.forward(X)
+        acc = accuracy(T, Y)
+        print(" Accuracy is: ", acc)
+        print("----------------------------------------------------")
+        print()
+        if best_acc < acc:
+            best_acc = acc
+            best_lr = lr
+            best_l = l
+            best_M = M
+            best_activation = activation
+            best_init = init
     print()
     print("----------------------------------------------------")
     print("Best hyperparameters: ", best_acc, best_lr, best_l, best_M, best_activation, best_init)
     print("----------------------------------------------------")
     print()
     return best_lr, best_l, best_M, best_activation, best_init
+
 
 def run(train_dataset, dev_dataset, test_dataset):
     epochs = 60

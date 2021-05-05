@@ -3,12 +3,12 @@ import numpy as np
 
 class H1Activation:
     @staticmethod
-    def function(a):
-        return np.log(1 + np.exp(a))
+    def function(x):
+        return np.log(1 + np.exp(x))
 
     @staticmethod
-    def derivative(a):
-        return np.exp(a) / (1 + np.exp(a))
+    def derivative(x):
+        return np.exp(x)/(1+np.exp(x))
 
 
 class H2Activation:

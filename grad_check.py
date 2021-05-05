@@ -8,10 +8,12 @@ import numpy.testing as nt
 from w_init import xavier
 
 
-def compute_numerical_gradient(W1, W2, X, T, num_feats, model_output_size, activation):
+# model, W1, W2, X, T
+def compute_numerical_gradient(model, W1, W2, X, T):
     print("Start computing..")
-    model = Model(num_feats, model_output_size, learning_rate=0.01, M=5, activation=activation, check=True, W1=W1.copy(),
-                  W2=W2.copy()) # W2 remains the same
+
+    model.set_W1(W1.copy())
+    model.set_W2(W2.copy())
     e = 1e-6
 
     numerical_grad = np.zeros(W1.shape)
@@ -39,11 +41,10 @@ def grad_check():
 
     # create fake data
     X_test = np.random.rand(3, 5)
-    Y_test = [[0,1,0],[0,1,0],[0,1,0]]
+    Y_test = [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
 
     # get one batch
-    dataset = Dataset(5)
-    dataset.add_data(X_test, Y_test)
+    dataset = Dataset(X_test, Y_test, 5)
     d = iter(dataset)
     X, T = next(d)
     num_feats = dataset.get_num_feats()
@@ -52,13 +53,15 @@ def grad_check():
     # initialize W1 and W2
     W1 = xavier(100, num_feats + 1)
     W2 = xavier(model_output_size, 101)
+
     for activation in [H3Activation, H1Activation, H2Activation]:
         # initialize model and compute the gradient
-        model = Model(num_feats, model_output_size, learning_rate=0.01, M=5, activation=activation, check=True, W1=W1.copy(), W2=W2.copy())
+        model = Model(num_feats, model_output_size, learning_rate=0.01, lambdapar=0.001, M=5, activation=activation,
+                      check=True, W1=W1.copy(), W2=W2.copy())
         model.forward(X)
-        grad = model.w1_derivative(T)
+        grad = model.w1_gradient(T)
 
-        numerical_grad = compute_numerical_gradient(W1, W2, X, T, num_feats, model_output_size, activation)
+        numerical_grad = compute_numerical_gradient(model, W1, W2, X, T)
 
         print("The difference estimate for gradient of w is : ", np.max(np.abs(grad - numerical_grad)))
 
@@ -66,4 +69,6 @@ def grad_check():
             print("Gradient check failed.")
         else:
             print("Success!")
+
+
 grad_check()
