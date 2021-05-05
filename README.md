@@ -1,3 +1,3 @@
 # MachineLearningAssignments
-@ AUEB 2021
+@ AUEB 2021 <br>
 ![](back.png)
