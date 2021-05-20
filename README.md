@@ -1,4 +1,4 @@
-# MachineLearningAssignments
+# First Machine Learning Assignment 
 @ AUEB 2021 <br>
 ***
 Commands:
